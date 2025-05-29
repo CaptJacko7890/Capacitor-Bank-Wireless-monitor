@@ -4,11 +4,10 @@ local component = require("component")
 local internet = component.internet
 local fs = require("filesystem")
 
--- === USER: FILL IN YOUR RAW FILE URLS BELOW ===
+-- === Corrected Raw File URLs ===
 local urls = {
   sender = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/main/sender.lua",
-  receiver = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/refs/heads/main/receiver.lua"
-
+  receiver = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/main/receiver.lua"
 }
 
 -- === Basic UI ===
@@ -40,15 +39,14 @@ local function download(url, path)
       file:close()
       return false, "Download error: " .. tostring(reason)
     else
-      break -- done
+      break
     end
-    os.sleep(0) -- yield to allow network to continue
+    os.sleep(0) -- yield for coroutine-based network IO
   end
 
   file:close()
   return true
 end
-
 
 local function install(type)
   term.clear()
@@ -61,6 +59,8 @@ local function install(type)
     print("Download failed: " .. (err or "unknown error"))
     return
   end
+
+  print("Downloaded successfully!")
 
   fs.remove("/home/autorun.lua")
   os.execute("ln -s /home/main.lua /home/autorun.lua")
