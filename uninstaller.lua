@@ -36,7 +36,7 @@ if selfPath and fs.exists(selfPath) then
 
   local success, err = fs.remove(selfPath)
   if success then
-    print("Uninstaller deleted itself successfully.")
+    print("Uninstaller deleted itself successfully. POOF")
   else
     print("Failed to delete uninstaller: " .. tostring(err))
   end
