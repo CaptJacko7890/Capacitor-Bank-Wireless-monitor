@@ -3,13 +3,10 @@ local event = require("event")
 local term = require("term")
 local os = require("os")
 local gpu = component.gpu
-local modem = component.modem
+local tunnel = component.tunnel -- linked card
 local serialization = require("serialization")
 
 gpu.setResolution(50, 15)
-
-local port = 619
-modem.open(port)
 
 local screenWidth, screenHeight = gpu.getResolution()
 term.clear()
@@ -86,7 +83,7 @@ while running do
     end
   end
 
-  if evt[1] == "modem_message" and evt[4] == port and evt[6] == "cap_data" then
+  if evt[1] == "modem_message" and evt[6] == "cap_data" then
     local ok, data = pcall(serialization.unserialize, evt[7])
     if ok and data then
       latestData = data
@@ -97,19 +94,4 @@ while running do
   end
 
   -- Periodic status check
-  if os.clock() - lastStatusCheck > checkInterval then
-    lastStatusCheck = os.clock()
-    if os.time() - lastReceiveTime > timeout then
-      if connectionStatus ~= "Waiting for data..." then
-        connectionStatus = "Waiting for data..."
-        drawUI(latestData, true)
-      end
-    else
-      drawUI(latestData, false) -- new data but same status — still refresh
-    end
-  end
-end
-
-term.setCursor(1, screenHeight)
-gpu.setForeground(0xFFFFFF)
-print("Receiver shutting down...")
+  if o
