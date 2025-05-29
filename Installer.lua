@@ -64,11 +64,19 @@ local function install(type)
 
   print("Downloaded successfully!")
 
+  -- Remove previous autorun scripts if they exist
   fs.remove("/home/autorun.lua")
+  fs.remove("/autorun.lua")
+
+  -- Create symlink in home (optional, mostly cosmetic)
   os.execute("ln -s /home/main.lua /home/autorun.lua")
 
-  print("Install complete! Will autorun on next boot.")
+  -- Create symlink in root for boot autorun
+  os.execute("ln -s /home/main.lua /autorun.lua")
+
+  print("Install complete! Script will autorun at next boot.")
 end
+
 
 -- === Main loop ===
 local options = {"sender", "receiver"}
