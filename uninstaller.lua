@@ -30,7 +30,7 @@ for _, path in ipairs(files) do
 end
 
 -- Hardcoded path to this uninstaller script
-local selfPath = "/home/uninstall.lua"
+local selfPath = "/home/uninstaller.lua"
 
 -- Delete the uninstaller itself
 if fs.exists(selfPath) then
