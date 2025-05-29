@@ -48,6 +48,6 @@ else
 end
 
 -- Reboot after cleanup
-print("Cleanup complete. Rebooting in 3 seconds...")
-os.sleep(3)
+print("Cleanup complete. Rebooting in 5 seconds...")
+os.sleep(5)
 computer.shutdown(true)
