@@ -6,6 +6,7 @@ local gpu = component.gpu
 local fs = require("filesystem")
 
 gpu.setResolution(50, 15)
+
 -- === Corrected Raw File URLs ===
 local urls = {
   sender = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/main/sender.lua",
@@ -24,7 +25,7 @@ local function drawMenu(selected)
   print("Use UP/DOWN arrows and ENTER to select.")
 end
 
--- === Download and Install ===
+-- === Download and Save File ===
 local function download(url, path)
   print("Downloading from: " .. url)
   local handle, reason = internet.request(url)
@@ -43,20 +44,40 @@ local function download(url, path)
     else
       break
     end
-    os.sleep(0) -- yield for coroutine-based network IO
+    os.sleep(0)
   end
 
   file:close()
   return true
 end
 
+-- === Copy File Helper ===
+local function copyFile(src, dest)
+  local srcFile = io.open(src, "r")
+  if not srcFile then return false, "Failed to open source file." end
+  local content = srcFile:read("*a")
+  srcFile:close()
+
+  local destFile = io.open(dest, "w")
+  if not destFile then return false, "Failed to write destination file." end
+  destFile:write(content)
+  destFile:close()
+  return true
+end
+
+-- === Install Function ===
 local function install(type)
   term.clear()
   term.setCursor(1, 1)
   print("Installing " .. type .. " script...")
 
-  fs.remove("/home/main.lua")
-  local ok, err = download(urls[type], "/home/main.lua")
+  local mainPath = "/home/main.lua"
+  local homeAutorunPath = "/home/autorun.lua"
+  local rootAutorunPath = "/autorun.lua"
+
+  -- Download script to /home/main.lua
+  fs.remove(mainPath)
+  local ok, err = download(urls[type], mainPath)
   if not ok then
     print("Download failed: " .. (err or "unknown error"))
     return
@@ -64,19 +85,20 @@ local function install(type)
 
   print("Downloaded successfully!")
 
-  -- Remove previous autorun scripts if they exist
-  fs.remove("/home/autorun.lua")
-  fs.remove("/autorun.lua")
+  -- Remove previous autorun files
+  fs.remove(homeAutorunPath)
+  fs.remove(rootAutorunPath)
 
-  -- Create symlink in home (optional, mostly cosmetic)
-  os.execute("ln -s /home/main.lua /home/autorun.lua")
+  -- Copy main.lua to autorun locations
+  local ok1, err1 = copyFile(mainPath, homeAutorunPath)
+  local ok2, err2 = copyFile(mainPath, rootAutorunPath)
 
-  -- Create symlink in root for boot autorun
-  os.execute("ln -s /home/main.lua /autorun.lua")
+  if not ok1 then print("Failed to create /home/autorun.lua: " .. (err1 or "")) end
+  if not ok2 then print("Failed to create /autorun.lua: " .. (err2 or "")) end
 
-  print("Install complete! Script will autorun at next boot.")
+  print("Install complete!")
+  print("Script will autorun on next boot.")
 end
-
 
 -- === Main loop ===
 local options = {"sender", "receiver"}
