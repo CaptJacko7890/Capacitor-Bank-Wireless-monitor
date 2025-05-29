@@ -6,6 +6,8 @@ local gpu = component.gpu
 local modem = component.modem
 local serialization = require("serialization")
 
+gpu.setResolution(50, 15)
+
 local port = 619
 modem.open(port)
 
