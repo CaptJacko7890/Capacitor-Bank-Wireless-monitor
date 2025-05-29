@@ -6,8 +6,9 @@ local fs = require("filesystem")
 
 -- === USER: FILL IN YOUR RAW FILE URLS BELOW ===
 local urls = {
-  sender = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/sender.lua",
-  receiver = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/receiver.lua"
+  sender = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/main/sender.lua",
+  receiver = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/main/receiver.lua"
+
 }
 
 -- === Basic UI ===
