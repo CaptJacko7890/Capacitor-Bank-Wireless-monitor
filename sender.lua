@@ -5,6 +5,8 @@ local os = require("os")
 local gpu = component.gpu
 local serialization = require("serialization")
 
+gpu.setResolution(50, 15)
+
 local capBank = component.capacitor_bank -- replace if your address is custom
 local modem = component.modem
 local port = 619
