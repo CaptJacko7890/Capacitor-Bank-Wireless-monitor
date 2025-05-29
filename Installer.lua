@@ -1,6 +1,7 @@
 local term = require("term")
 local event = require("event")
 local component = require("component")
+local computer = require("computer")
 local internet = component.internet
 local gpu = component.gpu
 local fs = require("filesystem")
@@ -98,6 +99,14 @@ local function install(type)
 
   print("Install complete!")
   print("Script will autorun on next boot.")
+
+  -- === 5-Second Reboot Countdown ===
+  for i = 5, 1, -1 do
+    print("Rebooting in " .. i .. " second(s)...")
+    os.sleep(1)
+  end
+
+  computer.shutdown(true) -- true = reboot
 end
 
 -- === Main loop ===
