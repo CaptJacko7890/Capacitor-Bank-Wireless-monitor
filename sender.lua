@@ -8,12 +8,9 @@ local serialization = require("serialization")
 gpu.setResolution(50, 15)
 
 local capBank = component.capacitor_bank -- replace if your address is custom
-local modem = component.modem
-local port = 619
-
-modem.open(port)
-
+local tunnel = component.tunnel -- linked card
 local screenWidth, screenHeight = gpu.getResolution()
+
 term.clear()
 term.setCursorBlink(false)
 
@@ -82,10 +79,10 @@ while running do
     end
   end
 
-  -- Send updated data
+  -- Send updated data via linked card
   local data = getCapData()
   local serialized = serialization.serialize(data)
-  modem.broadcast(port, "cap_data", serialized)
+  tunnel.send("cap_data", serialized)
   drawUI(data)
 end
 
