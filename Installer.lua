@@ -25,16 +25,30 @@ end
 
 -- === Download and Install ===
 local function download(url, path)
-  local handle = internet.request(url)
-  if not handle then return false, "Failed to open URL." end
+  print("Downloading from: " .. url)
+  local handle, reason = internet.request(url)
+  if not handle then return false, "Failed to open URL: " .. tostring(reason) end
 
-  local file = io.open(path, "w")
-  for chunk in handle do
-    file:write(chunk)
+  local file, err = io.open(path, "w")
+  if not file then return false, "Failed to open file: " .. tostring(err) end
+
+  while true do
+    local chunk, reason = handle.read()
+    if chunk then
+      file:write(chunk)
+    elseif reason then
+      file:close()
+      return false, "Download error: " .. tostring(reason)
+    else
+      break -- done
+    end
+    os.sleep(0) -- yield to allow network to continue
   end
+
   file:close()
   return true
 end
+
 
 local function install(type)
   term.clear()
