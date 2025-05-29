@@ -11,7 +11,8 @@ gpu.setResolution(50, 15)
 -- === Corrected Raw File URLs ===
 local urls = {
   sender = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/main/sender.lua",
-  receiver = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/main/receiver.lua"
+  receiver = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/main/receiver.lua",
+  uninstaller = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/refs/heads/main/uninstaller.lua"
 }
 
 -- === Basic UI ===
@@ -75,6 +76,7 @@ local function install(type)
   local mainPath = "/home/main.lua"
   local homeAutorunPath = "/home/autorun.lua"
   local rootAutorunPath = "/autorun.lua"
+  local uninstallerPath = "/home/uninstaller.lua"
 
   -- Download script to /home/main.lua
   fs.remove(mainPath)
@@ -97,6 +99,16 @@ local function install(type)
   if not ok1 then print("Failed to create /home/autorun.lua: " .. (err1 or "")) end
   if not ok2 then print("Failed to create /autorun.lua: " .. (err2 or "")) end
 
+  -- === Download uninstaller ===
+  print("Downloading uninstaller...")
+  fs.remove(uninstallerPath)
+  local ok3, err3 = download(urls.uninstaller, uninstallerPath)
+  if ok3 then
+    print("Uninstaller saved to: " .. uninstallerPath)
+  else
+    print("Failed to download uninstaller: " .. (err3 or "unknown error"))
+  end
+
   print("Install complete!")
   print("Script will autorun on next boot.")
 
@@ -107,7 +119,7 @@ local function install(type)
     os.sleep(1)
   end
 
-  computer.shutdown(true) -- true = reboot
+  computer.shutdown(true)
 end
 
 -- === Main loop ===
