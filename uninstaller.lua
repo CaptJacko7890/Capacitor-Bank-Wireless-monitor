@@ -1,7 +1,6 @@
 local fs = require("filesystem")
 local term = require("term")
 local computer = require("computer")
-local shell = require("shell")
 
 term.clear()
 term.setCursor(1, 1)
@@ -29,8 +28,8 @@ for _, path in ipairs(files) do
   end
 end
 
--- Delete this uninstaller script
-local selfPath = shell.getRunningProgram()
+-- Delete this uninstaller script using arg[0]
+local selfPath = arg and arg[0]
 if selfPath and fs.exists(selfPath) then
   print("Uninstaller will delete itself in 3 seconds...")
   os.sleep(3)
@@ -42,10 +41,10 @@ if selfPath and fs.exists(selfPath) then
     print("Failed to delete uninstaller: " .. tostring(err))
   end
 else
-  print("Warning: Could not determine script location for self-deletion.")
+  print("Could not determine uninstaller path. Self-deletion skipped.")
 end
 
--- Optional: shutdown or return to shell
+-- Optional: Reboot
 print("Cleanup complete. Rebooting in 3 seconds...")
 os.sleep(3)
 computer.shutdown(true)
