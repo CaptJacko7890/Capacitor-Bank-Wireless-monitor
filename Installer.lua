@@ -4,6 +4,7 @@ local component = require("component")
 local internet = component.internet
 local fs = require("filesystem")
 
+gpu.setResolution(50, 15)
 -- === Corrected Raw File URLs ===
 local urls = {
   sender = "https://raw.githubusercontent.com/CaptJacko7890/Capacitor-Bank-Wireless-monitor/main/sender.lua",
