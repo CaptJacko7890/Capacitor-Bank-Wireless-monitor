@@ -7,10 +7,10 @@ local serialization = require("serialization")
 
 gpu.setResolution(50, 15)
 
-local capBank = component.capacitor_bank -- replace if your address is custom
+local capBank = component.capacitor_bank -- adjust if necessary
 local tunnel = component.tunnel -- linked card
-local screenWidth, screenHeight = gpu.getResolution()
 
+local screenWidth, screenHeight = gpu.getResolution()
 term.clear()
 term.setCursorBlink(false)
 
@@ -79,7 +79,7 @@ while running do
     end
   end
 
-  -- Send updated data via linked card
+  -- Send updated data
   local data = getCapData()
   local serialized = serialization.serialize(data)
   tunnel.send("cap_data", serialized)
