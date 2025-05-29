@@ -2,6 +2,7 @@ local term = require("term")
 local event = require("event")
 local component = require("component")
 local internet = component.internet
+local gpu = component.gpu
 local fs = require("filesystem")
 
 gpu.setResolution(50, 15)
