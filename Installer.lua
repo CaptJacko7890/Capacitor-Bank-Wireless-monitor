@@ -1,0 +1,73 @@
+local term = require("term")
+local event = require("event")
+local component = require("component")
+local internet = component.internet
+local fs = require("filesystem")
+
+-- === USER: FILL IN YOUR RAW FILE URLS BELOW ===
+local urls = {
+  sender = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/sender.lua",
+  receiver = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/receiver.lua"
+}
+
+-- === Basic UI ===
+local function drawMenu(selected)
+  term.clear()
+  term.setCursor(1, 1)
+  print("=== OpenComputers Installer ===")
+  print("")
+  print((selected == "sender"   and "> " or "  ") .. "[1] Install Sender")
+  print((selected == "receiver" and "> " or "  ") .. "[2] Install Receiver")
+  print("")
+  print("Use UP/DOWN arrows and ENTER to select.")
+end
+
+-- === Download and Install ===
+local function download(url, path)
+  local handle = internet.request(url)
+  if not handle then return false, "Failed to open URL." end
+
+  local file = io.open(path, "w")
+  for chunk in handle do
+    file:write(chunk)
+  end
+  file:close()
+  return true
+end
+
+local function install(type)
+  term.clear()
+  term.setCursor(1, 1)
+  print("Installing " .. type .. " script...")
+
+  fs.remove("/home/main.lua")
+  local ok, err = download(urls[type], "/home/main.lua")
+  if not ok then
+    print("Download failed: " .. (err or "unknown error"))
+    return
+  end
+
+  fs.remove("/home/autorun.lua")
+  os.execute("ln -s /home/main.lua /home/autorun.lua")
+
+  print("Install complete! Will autorun on next boot.")
+end
+
+-- === Main loop ===
+local options = {"sender", "receiver"}
+local index = 1
+drawMenu(options[index])
+
+while true do
+  local _, _, _, key = event.pull("key_down")
+  if key == 200 then -- up arrow
+    index = index == 1 and #options or index - 1
+    drawMenu(options[index])
+  elseif key == 208 then -- down arrow
+    index = index == #options and 1 or index + 1
+    drawMenu(options[index])
+  elseif key == 28 then -- enter
+    install(options[index])
+    break
+  end
+end
