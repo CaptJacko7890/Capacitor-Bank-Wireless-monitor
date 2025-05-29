@@ -114,7 +114,7 @@ local function install(type)
 
   -- === 5-Second Reboot Countdown ===
   for i = 5, 1, -1 do
-    term.setCursor(1,8)
+    term.setCursor(1,13)
     io.write(string.format("Rebooting in " .. i .. " second(s)..."))
     os.sleep(1)
   end
