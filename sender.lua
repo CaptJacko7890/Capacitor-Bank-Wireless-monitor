@@ -5,16 +5,15 @@ local os = require("os")
 local gpu = component.gpu
 local serialization = require("serialization")
 
--- Adjust screen resolution
+-- Set resolution
 gpu.setResolution(50, 15)
+local screenWidth, screenHeight = gpu.getResolution()
 
 -- Components
-local capBank = component.capacitor_bank
-local drawer = component.drawer
-local tunnel = component.tunnel
+local capBank = component.capacitor_bank -- adjust if necessary
+local tunnel = component.tunnel -- linked card
+local drawer = component.drawer -- fuel drawer
 
--- Screen settings
-local screenWidth, screenHeight = gpu.getResolution()
 term.clear()
 term.setCursorBlink(false)
 
@@ -33,11 +32,20 @@ local function drawProgressBar(y, percent)
   local empty = barWidth - filled
   local x = math.floor((screenWidth - barWidth) / 2)
   term.setCursor(x, y)
-
   gpu.setForeground(0x00FF00)
   io.write(string.rep("█", filled))
   gpu.setForeground(0x222222)
   io.write(string.rep("░", empty))
+end
+
+local function getCapData()
+  return {
+    stored = capBank.getEnergyStored(),
+    max = capBank.getMaxEnergyStored(),
+    input = capBank.getAverageInputPerTick(),
+    output = capBank.getAverageOutputPerTick(),
+    fuel = drawer.getItemCount() + 1 -- drawer count + 1 in reactor
+  }
 end
 
 local function drawUI(data)
@@ -60,19 +68,28 @@ local function drawUI(data)
   centerText("Press Q to quit.", screenHeight - 2, 0xFF5555)
 end
 
-local function getCapData()
-  return {
-    stored = capBank.getEnergyStored(),
-    max = capBank.getMaxEnergyStored(),
-    input = capBank.getAverageInputPerTick(),
-    output = capBank.getAverageOutputPerTick(),
-    fuel = drawer.getItemCount() + 1 -- include one in reactor
-  }
-end
-
 -- Initial draw
 drawUI(getCapData())
 
 local running = true
 while running do
-  local
+  local evt = {event.pull(0.5)}
+
+  if evt[1] == "key_down" then
+    local charCode = evt[3]
+    if charCode and string.char(charCode):lower() == "q" then
+      running = false
+      break
+    end
+  end
+
+  -- Send data
+  local data = getCapData()
+  local serialized = serialization.serialize(data)
+  tunnel.send("cap_data", serialized)
+  drawUI(data)
+end
+
+term.setCursor(1, screenHeight)
+gpu.setForeground(0xFFFFFF)
+print("Sender shutting down...")
