@@ -7,8 +7,8 @@ local tunnel = component.tunnel -- Linked card
 local serialization = require("serialization")
 
 gpu.setResolution(50, 15)
-local screenWidth, screenHeight = gpu.getResolution()
 
+local screenWidth, screenHeight = gpu.getResolution()
 term.clear()
 term.setCursorBlink(false)
 
@@ -21,7 +21,6 @@ local lastStatusCheck = os.clock()
 local checkInterval = 1
 local timeout = 10
 
--- Helper functions
 local function centerText(text, y, color)
   color = color or 0xFFFFFF
   local x = math.floor((screenWidth - #text) / 2) + 1
@@ -34,19 +33,21 @@ local function drawProgressBar(y, percent)
   local barWidth = screenWidth - 10
   local filled = math.floor(barWidth * percent)
   local empty = barWidth - filled
+
   local x = math.floor((screenWidth - barWidth) / 2)
   term.setCursor(x, y)
+
   gpu.setForeground(0x00FF00)
   io.write(string.rep("█", filled))
+
   gpu.setForeground(0x222222)
   io.write(string.rep("░", empty))
 end
 
 local function drawUI(data, force)
   if not force and connectionStatus == lastStatus and serialization.serialize(data) == serialization.serialize(lastDrawnData) then
-    return -- No redraw needed
+    return -- Skip if nothing changed
   end
-
   lastStatus = connectionStatus
   lastDrawnData = data
 
@@ -58,7 +59,6 @@ local function drawUI(data, force)
     centerText(string.format("Stored Energy: %d / %d", data.stored, data.max), 4)
     centerText(string.format("Charge Level : %.1f%%", percent * 100), 5)
     drawProgressBar(6, percent)
-    centerText(string.format("Fuel Pellets : %d", data.fuel or 0), 7)
     centerText(string.format("Input Rate   : %.2f RF/t", data.input), 8)
     centerText(string.format("Output Rate  : %.2f RF/t", data.output), 9)
   else
@@ -93,6 +93,7 @@ while running do
     end
   end
 
+  -- Periodic status check
   if os.clock() - lastStatusCheck > checkInterval then
     lastStatusCheck = os.clock()
     if os.time() - lastReceiveTime > timeout then
