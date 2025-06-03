@@ -5,19 +5,15 @@ local os = require("os")
 local gpu = component.gpu
 local serialization = require("serialization")
 
--- Set resolution
 gpu.setResolution(50, 15)
-local screenWidth, screenHeight = gpu.getResolution()
 
--- Components
 local capBank = component.capacitor_bank -- adjust if necessary
 local tunnel = component.tunnel -- linked card
-local drawer = component.drawer -- fuel drawer
 
+local screenWidth, screenHeight = gpu.getResolution()
 term.clear()
 term.setCursorBlink(false)
 
--- Helper functions
 local function centerText(text, y, color)
   color = color or 0xFFFFFF
   local x = math.floor((screenWidth - #text) / 2) + 1
@@ -30,22 +26,15 @@ local function drawProgressBar(y, percent)
   local barWidth = screenWidth - 10
   local filled = math.floor(barWidth * percent)
   local empty = barWidth - filled
+
   local x = math.floor((screenWidth - barWidth) / 2)
   term.setCursor(x, y)
+
   gpu.setForeground(0x00FF00)
   io.write(string.rep("█", filled))
+
   gpu.setForeground(0x222222)
   io.write(string.rep("░", empty))
-end
-
-local function getCapData()
-  return {
-    stored = capBank.getEnergyStored(),
-    max = capBank.getMaxEnergyStored(),
-    input = capBank.getAverageInputPerTick(),
-    output = capBank.getAverageOutputPerTick(),
-    fuel = drawer.getItemCount() + 1 -- drawer count + 1 in reactor
-  }
 end
 
 local function drawUI(data)
@@ -58,7 +47,6 @@ local function drawUI(data)
     centerText(string.format("Stored Energy: %d / %d", data.stored, data.max), 6)
     centerText(string.format("Charge Level : %.1f%%", percent * 100), 7)
     drawProgressBar(8, percent)
-    centerText(string.format("Fuel Pellets : %d", data.fuel), 9)
     centerText(string.format("Input Rate   : %.2f RF/t", data.input), 10)
     centerText(string.format("Output Rate  : %.2f RF/t", data.output), 11)
   else
@@ -68,7 +56,15 @@ local function drawUI(data)
   centerText("Press Q to quit.", screenHeight - 2, 0xFF5555)
 end
 
--- Initial draw
+local function getCapData()
+  return {
+    stored = capBank.getEnergyStored(),
+    max = capBank.getMaxEnergyStored(),
+    input = capBank.getAverageInputPerTick(),
+    output = capBank.getAverageOutputPerTick()
+  }
+end
+
 drawUI(getCapData())
 
 local running = true
@@ -83,7 +79,7 @@ while running do
     end
   end
 
-  -- Send data
+  -- Send updated data
   local data = getCapData()
   local serialized = serialization.serialize(data)
   tunnel.send("cap_data", serialized)
