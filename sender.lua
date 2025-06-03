@@ -5,15 +5,20 @@ local os = require("os")
 local gpu = component.gpu
 local serialization = require("serialization")
 
+-- Adjust screen resolution
 gpu.setResolution(50, 15)
 
-local capBank = component.capacitor_bank -- adjust if necessary
-local tunnel = component.tunnel -- linked card
+-- Components
+local capBank = component.capacitor_bank
+local drawer = component.drawer
+local tunnel = component.tunnel
 
+-- Screen settings
 local screenWidth, screenHeight = gpu.getResolution()
 term.clear()
 term.setCursorBlink(false)
 
+-- Helper functions
 local function centerText(text, y, color)
   color = color or 0xFFFFFF
   local x = math.floor((screenWidth - #text) / 2) + 1
@@ -26,13 +31,11 @@ local function drawProgressBar(y, percent)
   local barWidth = screenWidth - 10
   local filled = math.floor(barWidth * percent)
   local empty = barWidth - filled
-
   local x = math.floor((screenWidth - barWidth) / 2)
   term.setCursor(x, y)
 
   gpu.setForeground(0x00FF00)
   io.write(string.rep("█", filled))
-
   gpu.setForeground(0x222222)
   io.write(string.rep("░", empty))
 end
@@ -47,6 +50,7 @@ local function drawUI(data)
     centerText(string.format("Stored Energy: %d / %d", data.stored, data.max), 6)
     centerText(string.format("Charge Level : %.1f%%", percent * 100), 7)
     drawProgressBar(8, percent)
+    centerText(string.format("Fuel Pellets : %d", data.fuel), 9)
     centerText(string.format("Input Rate   : %.2f RF/t", data.input), 10)
     centerText(string.format("Output Rate  : %.2f RF/t", data.output), 11)
   else
@@ -61,31 +65,14 @@ local function getCapData()
     stored = capBank.getEnergyStored(),
     max = capBank.getMaxEnergyStored(),
     input = capBank.getAverageInputPerTick(),
-    output = capBank.getAverageOutputPerTick()
+    output = capBank.getAverageOutputPerTick(),
+    fuel = drawer.getItemCount() + 1 -- include one in reactor
   }
 end
 
+-- Initial draw
 drawUI(getCapData())
 
 local running = true
 while running do
-  local evt = {event.pull(0.5)}
-
-  if evt[1] == "key_down" then
-    local charCode = evt[3]
-    if charCode and string.char(charCode):lower() == "q" then
-      running = false
-      break
-    end
-  end
-
-  -- Send updated data
-  local data = getCapData()
-  local serialized = serialization.serialize(data)
-  tunnel.send("cap_data", serialized)
-  drawUI(data)
-end
-
-term.setCursor(1, screenHeight)
-gpu.setForeground(0xFFFFFF)
-print("Sender shutting down...")
+  local
